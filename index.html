@@ -8,6 +8,7 @@
 </head>
 <body>
 
+  <h5>test 2</h5>
   <button id="scan-btn">Scan QR Code</button>
   <div id="reader"></div>
   <div id="result"></div>
@@ -21,22 +22,22 @@
     let html5QrCode;
 
     scanBtn.addEventListener("click", () => {
-      if (reader.style.display === "none") {
-        reader.style.display = "block";
+      if (!html5QrCode) {
         html5QrCode = new Html5Qrcode("reader");
+      }
+      if (reader.style.display === "none" || reader.style.display === "") {
+        reader.style.display = "block";
         html5QrCode.start(
-          { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: 250
-          },
+          { facingMode: "environment" }, // back camera if available
+          { fps: 10, qrbox: { width: 250, height: 250 } },
           qrCodeMessage => {
-            result.innerText = `Scanned: ${qrCodeMessage}`;
-            html5QrCode.stop();
-            reader.style.display = "none";
+            result.innerText = "✅ Scanned: " + qrCodeMessage;
+            html5QrCode.stop().then(() => {
+              reader.style.display = "none";
+            }).catch(err => console.error("Stop failed:", err));
           },
           errorMessage => {
-            // ignore scan errors
+            // ignore scanning errors
           }
         ).catch(err => {
           console.error("Camera start failed:", err);
