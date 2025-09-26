@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Scanner</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+  <button id="scan-btn">Scan QR Code</button>
+  <div id="reader"></div>
+  <div id="result"></div>
+
+  <!-- QR Code library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script>
+    const scanBtn = document.getElementById("scan-btn");
+    const reader = document.getElementById("reader");
+    const result = document.getElementById("result");
+    let html5QrCode;
+
+    scanBtn.addEventListener("click", () => {
+      if (reader.style.display === "none") {
+        reader.style.display = "block";
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: 250
+          },
+          qrCodeMessage => {
+            result.innerText = `Scanned: ${qrCodeMessage}`;
+            html5QrCode.stop();
+            reader.style.display = "none";
+          },
+          errorMessage => {
+            // ignore scan errors
+          }
+        ).catch(err => {
+          console.error("Camera start failed:", err);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
