@@ -28,22 +28,91 @@
       if (reader.style.display === "none" || reader.style.display === "") {
         reader.style.display = "block";
         html5QrCode.start(
-          { facingMode: "environment" }, // back camera if available
+          { facingMode: "environment" }, 
           { fps: 10, qrbox: { width: 250, height: 250 } },
           qrCodeMessage => {
-            result.innerText = "✅ Scanned: " + qrCodeMessage;
+            result.innerText = "✅ Scanned " ;
+            sendToGoogleSheets(qrCodeMessage); 
             html5QrCode.stop().then(() => {
               reader.style.display = "none";
             }).catch(err => console.error("Stop failed:", err));
           },
           errorMessage => {
-            // ignore scanning errors
+            // Ignore scan errors
           }
         ).catch(err => {
           console.error("Camera start failed:", err);
         });
       }
     });
+
+    // Get device + location info
+    function getDeviceInfo(callback) {
+      const info = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        location: "Unknown"
+      };
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+              .then(res => res.json())
+              .then(data => {
+                if (data && data.display_name) {
+                  info.location = data.display_name;
+                }
+                callback(info);
+              })
+              .catch(err => {
+                console.error("Reverse geocode error:", err);
+                callback(info);
+              });
+          },
+          err => {
+            info.location = "Location not allowed";
+            callback(info);
+          }
+        );
+      } else {
+        info.location = "Geolocation not supported";
+        callback(info);
+      }
+    }
+
+    // Send data to Google Sheets (no-cors)
+    function sendToGoogleSheets(qrCodeMessage) {
+      getDeviceInfo(info => {
+        const payload = {
+          qrCode: qrCodeMessage,
+          userAgent: info.userAgent,
+          platform: info.platform,
+          language: info.language,
+          screenWidth: info.screenWidth,
+          screenHeight: info.screenHeight,
+          timezone: info.timezone,
+          location: info.location
+        };
+
+        fetch("https://script.google.com/macros/s/AKfycbyUSqeXXNSP_gj8IwQKjPX3ilXUxZxG6lFNxz2JF6RMIVs4Ff4dU0ViYO2ryxg-CnGf3w/exec", {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
+          mode: "no-cors" 
+        })
+        .then(() => {
+          console.log("✅ Data sent to Google Sheets (cannot read response in no-cors mode).");
+        })
+        .catch(err => console.error("Error:", err));
+      });
+    }
   </script>
 </body>
 </html>
