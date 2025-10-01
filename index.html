@@ -20,6 +20,14 @@
     const reader = document.getElementById("reader");
     const result = document.getElementById("result");
     let html5QrCode;
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;})}else{
+              info.location = "Geolocation not supported";
+              callback(info);
+            }
 
     scanBtn.addEventListener("click", () => {
       if (!html5QrCode) {
