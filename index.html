@@ -8,9 +8,19 @@
 </head>
 <body>
 
-  <h5>test 2</h5>
-  <button id="scan-btn">Scan QR Code</button>
-  <div id="reader"></div>
+  <div class="card">
+    <div class="title">How to Scan</div>
+    <ol>
+      <li>Allow access to your <b>camera</b> when prompted.</li>
+      <li>Allow access to your <b>location</b>. </li>
+      <li>Hold your device steady and point it at the QR code.</li>
+    </ol>
+    <div class="btn-wrapper">
+      <button id="scan-btn">Scan QR Code</button>
+      
+    </div>
+    <div id="reader"></div>
+  </div>
   <div id="result"></div>
 
   <!-- QR Code library -->
@@ -39,10 +49,10 @@
           { facingMode: "environment" }, 
           { fps: 10, qrbox: { width: 250, height: 250 } },
           qrCodeMessage => {
-            result.innerText = "✅ Scanned " ;
             sendToGoogleSheets(qrCodeMessage); 
             html5QrCode.stop().then(() => {
               reader.style.display = "none";
+              window.location.replace("success.html");
             }).catch(err => console.error("Stop failed:", err));
           },
           errorMessage => {
