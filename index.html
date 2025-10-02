@@ -52,7 +52,7 @@
             sendToGoogleSheets(qrCodeMessage); 
             html5QrCode.stop().then(() => {
               reader.style.display = "none";
-              window.location.replace("success.html");
+             
             }).catch(err => console.error("Stop failed:", err));
           },
           errorMessage => {
@@ -127,6 +127,7 @@
         })
         .then(() => {
           console.log("✅ Data sent to Google Sheets (cannot read response in no-cors mode).");
+           window.location.replace("success.html");
         })
         .catch(err => console.error("Error:", err));
       });
