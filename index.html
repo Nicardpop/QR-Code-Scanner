@@ -120,7 +120,7 @@
           timezone: info.timezone,
           location: info.location
         };
-        fetch("https://script.google.com/macros/s/AKfycbyUSqeXXNSP_gj8IwQKjPX3ilXUxZxG6lFNxz2JF6RMIVs4Ff4dU0ViYO2ryxg-CnGf3w/exec", {
+        fetch("Your_google_sheet_link", {// put your google sheets link here to save your data there !
           method: "POST",
           body: JSON.stringify(payload),
           headers: { "Content-Type": "application/json" },
